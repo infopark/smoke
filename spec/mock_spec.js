@@ -72,10 +72,15 @@ Screw.Unit(function() {
 				mockObj.should_receive('foo').with_arguments('bar',baz).and_return('foobar'); 
 				expect(mockObj.foo('bar',baz)).to(equal, 'foobar');
 			});
-			it("should return undefined if the arguments aren't matched", function() {
+      
+			it("should throw and arguments mismatched error if the arguments aren't matched", function() {
 				mockObj = mock()
 				mockObj.should_receive('foo').with_arguments('bar').and_return('foobar'); 
-				expect(mockObj.foo('chicken')).to(equal, undefined);
+				try { 
+				  mockObj.foo('chicken'); 
+				} catch(e) {  
+				  expect(e).to(equal, 'expected foo with ("bar") but received it with ("chicken")')
+				}
 			});
 			it("should allow mocking multiple method signatures with different returns", function() {
 				mockObj = mock()
@@ -88,12 +93,6 @@ Screw.Unit(function() {
 				mockObj = mock()
 				mockObj.should_receive('foo').with_arguments('bar').exactly('once');
 				mockObj.foo('bar')
-			});
-			it("should only mock the exact method signature when with_arguments is used with no arguments", function() {
-        mockObj = mock();
-        mockObj.should_receive('foo').with_arguments().exactly('once');
-        mockObj.foo('should ignore this call');
-        mockObj.foo();
 			});
 		});
 		
