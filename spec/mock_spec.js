@@ -164,6 +164,18 @@ Screw.Unit(function() {
         mockObj('a');
         mockObj('a');
       });
+
+      it("should allow a return value to be set", function() {
+        mockObj.should_be_invoked().and_return('bar');
+        expect(mockObj('foo')).to(equal, 'bar');
+      });
+      
+      it("should allow multiple return values to be set through the argument matchers", function() {
+        mockObj.should_be_invoked().with_arguments('foo').and_return('bar');
+        mockObj.should_be_invoked().with_arguments('bar').and_return('foo');
+        expect(mockObj('foo')).to(equal, 'bar');
+        expect(mockObj('bar')).to(equal, 'foo');
+      });
       
       it("allows passing in a name for the function as a second argument to make error messages clearer", function() {
         mock_function(foo, 'foo').should_be_invoked().exactly('once');
