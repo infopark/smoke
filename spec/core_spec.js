@@ -27,12 +27,7 @@ Screw.Unit(function() {
       
       it("should return the arguments in an array", function() {
         expect(Smoke.argumentsToArray(anonymous_function(1,2))).to(equal, [1,2]);        
-      });
-      
-      it("should return the array if passed an array", function() {
-        var array = [];
-        expect(Smoke.argumentsToArray(array) === array).to(equal, true)
-      })
+      });      
     });
 
     describe("compare", function() {
