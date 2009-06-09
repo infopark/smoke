@@ -219,6 +219,6 @@ Screw.Unit(function() {
 				(new Aobj()).aFunction();
 				(new Aobj()).aFunction();
 			});
-		});
+		});	    
 	});
 });
