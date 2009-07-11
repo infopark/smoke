@@ -72,10 +72,15 @@ Screw.Unit(function() {
 				mockObj.should_receive('foo').with_arguments('bar',baz).and_return('foobar'); 
 				expect(mockObj.foo('bar',baz)).to(equal, 'foobar');
 			});
-			it("should return undefined if the arguments aren't matched", function() {
+      
+			it("should throw and arguments mismatched error if the arguments aren't matched", function() {
 				mockObj = mock()
 				mockObj.should_receive('foo').with_arguments('bar').and_return('foobar'); 
-				expect(mockObj.foo('chicken')).to(equal, undefined);
+				try { 
+				  mockObj.foo('chicken'); 
+				} catch(e) {  
+				  expect(e).to(equal, 'expected foo with ("bar") but received it with ("chicken")')
+				}
 			});
 			it("should allow mocking multiple method signatures with different returns", function() {
 				mockObj = mock()
@@ -88,12 +93,6 @@ Screw.Unit(function() {
 				mockObj = mock()
 				mockObj.should_receive('foo').with_arguments('bar').exactly('once');
 				mockObj.foo('bar')
-			});
-			it("should only mock the exact method signature when with_arguments is used with no arguments", function() {
-        mockObj = mock();
-        mockObj.should_receive('foo').with_arguments().exactly('once');
-        mockObj.foo('should ignore this call');
-        mockObj.foo();
 			});
 		});
 		
@@ -164,6 +163,18 @@ Screw.Unit(function() {
         mockObj('a');
         mockObj('a');
       });
+
+      it("should allow a return value to be set", function() {
+        mockObj.should_be_invoked().and_return('bar');
+        expect(mockObj('foo')).to(equal, 'bar');
+      });
+      
+      it("should allow multiple return values to be set through the argument matchers", function() {
+        mockObj.should_be_invoked().with_arguments('foo').and_return('bar');
+        mockObj.should_be_invoked().with_arguments('bar').and_return('foo');
+        expect(mockObj('foo')).to(equal, 'bar');
+        expect(mockObj('bar')).to(equal, 'foo');
+      });
       
       it("allows passing in a name for the function as a second argument to make error messages clearer", function() {
         mock_function(foo, 'foo').should_be_invoked().exactly('once');
@@ -208,6 +219,6 @@ Screw.Unit(function() {
 				(new Aobj()).aFunction();
 				(new Aobj()).aFunction();
 			});
-		});
+		});	    
 	});
 });
