@@ -12,6 +12,38 @@ Screw.Unit(function() {
 				m.bar();
 				m.bar();
 			});
+
+      it("should fail when an expectation is called too many times", function() {
+        var m = mock();
+        m.should_receive('bar').exactly('once');  
+        m.bar();
+        m.bar();
+        try {
+          Smoke.checkExpectations();
+          throw("exception");
+        } catch(e) {
+          Smoke.reset();
+          expect(e).to(equal, 'expected bar() to be called exactly 1 times but it got called 2 times');
+        }
+      });
+
+      it("should fail when an expectation is set and not called", function() {
+        var m = mock();
+        m.should_receive('bar').exactly('once');
+        try {
+          Smoke.checkExpectations();
+          throw("exception");
+        } catch(e) {
+          Smoke.reset();
+          expect(e).to(equal, 'expected bar() to be called exactly 1 times but it got called 0 times');
+        }
+      });
+      
+			it("should not check arguments when with_arguments is not used", function() {
+				var m = mock()
+				m.should_receive('bar').exactly('once');
+				m.bar(1);
+			});
 		
 			it("should check a minimum call count", function() {
 				var m = mock()
@@ -25,7 +57,7 @@ Screw.Unit(function() {
 				m.bar();
 				m.bar();
 			});
-		
+		  
 			it("should allow return values directly from mocks",function() {
 				var m = mock()
 				m.should_receive('bar').exactly('once').and_return('hello');
@@ -57,6 +89,12 @@ Screw.Unit(function() {
 				mockObj.should_receive('foo').with_arguments('bar').exactly('once');
 				mockObj.foo('bar')
 			});
+			it("should only mock the exact method signature when with_arguments is used with no arguments", function() {
+        mockObj = mock();
+        mockObj.should_receive('foo').with_arguments().exactly('once');
+        mockObj.foo('should ignore this call');
+        mockObj.foo();
+			});
 		});
 		
 		describe("added ontop of an existing object", function() {
@@ -84,11 +122,82 @@ Screw.Unit(function() {
 				expect(mockObj.length).to(equal,4);
 			});
 			
-			it("should place expectations on existing methods non-destructively", function() {
-				myMock = mock({ say: "hello", shout: function() { return this.say.toUpperCase(); } });
+			it("should place expectations on existing methods destructively", function() {
+				myMock = mock({ say: "hello", shout: function() { throw "FAIL!" } });
 				myMock.should_receive('shout').exactly('once');
-				expect(myMock.shout()).to(equal,'HELLO');
+				myMock.shout()
 			});
+		});
+		
+		describe("anonymous functions", function() {
+			before(function() {
+				foo = function() { return 'bar' };
+				mockObj = mock_function(foo);
+			});
+      
+      it("should leave the original intact", function() {
+        expect(foo()).to(equal,'bar');
+      });
+      
+      it("should still execute the mock like the original", function() {
+        expect(mockObj()).to(equal,'bar');
+      });
+      
+      it("should still execute the mock like the original with arguments", function() {
+        var a = function(x,y,z) { return x+y+z };
+        aMock = mock_function(a)
+        expect(aMock('a','b','c')).to(equal,'abc');
+      });
+      
+      it("should allow expectations to be set as usual", function() {
+        mockObj.should_receive('baz').exactly('once').and_return(1);
+        mockObj.baz()
+      });
+
+      it("should allow expectations to be set on invocations of itself", function() {
+        mockObj.should_be_invoked();
+        mockObj();
+      });
+      
+      it("should allow expectation rules to be set", function() {
+        mockObj.should_be_invoked().exactly('twice').with_arguments('a');
+        mockObj('a');
+        mockObj('a');
+      });
+      
+      it("allows passing in a name for the function as a second argument to make error messages clearer", function() {
+        mock_function(foo, 'foo').should_be_invoked().exactly('once');
+        try {
+          Smoke.checkExpectations();
+          throw("exception");
+        } catch(e) {
+          Smoke.reset();
+          expect(e).to(equal, 'expected foo() to be called exactly 1 times but it got called 0 times');
+        }
+      });
+		});
+		
+		describe("when array has been monkey-patched by js library not to be named here (grrr)", function() {
+      before(function() {
+        Array.prototype.remove = function() {
+          alert('I like monkeys!');
+        }
+      });
+      it("should not throw a type error when checking expectations", function() {
+				var m = mock()
+				m.should_receive('bar').at_least('once');
+				m.bar();
+				try {
+				  Smoke.checkExpectations();
+				} catch(e) {
+  				/* Make sure we clean up to not break the rest of the tests */
+  				delete(Array.prototype.remove);
+				  throw e;
+				}
+		  });
+		  after(function() {
+	      delete(Array.prototype.remove);
+		  });		  
 		});
 		
 		describe("an objects prototype", function() {
