@@ -128,17 +128,53 @@ Screw.Unit(function() {
 			});
 		});
 		
-		describe("idempotency of mocks on global variables", function(){
+		describe("proper teardown of mocks on global variables", function(){
 			var SomeGlobal = { say: "hello", shout: function() { return this.say.toUpperCase(); } };
 			
 			it("when mocked in one test...", function(){
-				mock(SomeGlobal).should_receive("shout").exactly(1, "times").and_return("some string");
+				mock(SomeGlobal).should_receive("shout").and_return("some string");
 				expect(SomeGlobal.shout()).to(equal, "some string");
 			});
 			
 			it("should not affect a later test", function(){
 				expect(SomeGlobal.shout()).to(equal, "HELLO");
 			});
+		});
+		
+		describe("reseting mocks", function(){
+			it("should remove all mocking data from an object", function(){
+				var obj = { say: "hello", shout: function() { return this.say.toUpperCase(); } };
+				mock(obj).should_receive("shout").and_return("some string");
+				
+				expect(obj._valuesBeforeMocking).to_not(equal, null);
+				expect(obj._expectations).to_not(equal, null);
+				expect(obj.stub).to_not(equal, null);
+				expect(obj.should_receive).to_not(equal, null);
+				expect(obj.checkExpectations).to_not(equal, null);
+				expect(obj.resetMocks).to_not(equal, null);
+				
+				obj.resetMocks();
+				Smoke.mocks = [];
+				
+				expect(obj._valuesBeforeMocking).to(equal, null);
+				expect(obj._expectations).to(equal, null);
+				expect(obj.stub).to(equal, null);
+				expect(obj.should_receive).to(equal, null);
+				expect(obj.checkExpectations).to(equal, null);
+				expect(obj.resetMocks).to(equal, null);
+			});
+			
+			it("should replace the original functionality to the object", function(){
+				var obj = { say: "hello", shout: function() { return this.say.toUpperCase(); } };
+				mock(obj).should_receive("shout").and_return("some string");
+				expect(obj.shout()).to(equal, "some string");
+				
+				obj.resetMocks();
+				Smoke.mocks = [];
+				
+				expect(obj.shout()).to(equal, "HELLO");
+			});
+			
 		});
 		
 		describe("anonymous functions", function() {
