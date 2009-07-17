@@ -150,18 +150,18 @@ Screw.Unit(function() {
 				expect(obj._expectations).to_not(equal, null);
 				expect(obj.stub).to_not(equal, null);
 				expect(obj.should_receive).to_not(equal, null);
-				expect(obj.checkExpectations).to_not(equal, null);
-				expect(obj.resetMocks).to_not(equal, null);
+				expect(obj._checkExpectations).to_not(equal, null);
+				expect(obj._resetMocks).to_not(equal, null);
 				
-				obj.resetMocks();
+				obj._resetMocks();
 				Smoke.mocks = [];
 				
 				expect(obj._valuesBeforeMocking).to(equal, null);
 				expect(obj._expectations).to(equal, null);
 				expect(obj.stub).to(equal, null);
 				expect(obj.should_receive).to(equal, null);
-				expect(obj.checkExpectations).to(equal, null);
-				expect(obj.resetMocks).to(equal, null);
+				expect(obj._checkExpectations).to(equal, null);
+				expect(obj._resetMocks).to(equal, null);
 			});
 			
 			it("should replace the original functionality to the object", function(){
@@ -169,7 +169,7 @@ Screw.Unit(function() {
 				mock(obj).should_receive("shout").and_return("some string");
 				expect(obj.shout()).to(equal, "some string");
 				
-				obj.resetMocks();
+				obj._resetMocks();
 				Smoke.mocks = [];
 				
 				expect(obj.shout()).to(equal, "HELLO");
