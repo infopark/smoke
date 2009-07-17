@@ -73,7 +73,7 @@ Screw.Unit(function() {
 				expect(mockObj.foo('bar',baz)).to(equal, 'foobar');
 			});
       
-			it("should throw and arguments mismatched error if the arguments aren't matched", function() {
+			it("should throw an arguments mismatched error if the arguments aren't matched", function() {
 				mockObj = mock()
 				mockObj.should_receive('foo').with_arguments('bar').and_return('foobar'); 
 				try { 
@@ -96,7 +96,7 @@ Screw.Unit(function() {
 			});
 		});
 		
-		describe("added ontop of an existing object", function() {
+		describe("added on top of an existing object", function() {
 			before(function() {
 				obj = { say: "hello", shout: function() { return this.say.toUpperCase(); } }
 				mockObj = mock(obj);
@@ -124,7 +124,20 @@ Screw.Unit(function() {
 			it("should place expectations on existing methods destructively", function() {
 				myMock = mock({ say: "hello", shout: function() { throw "FAIL!" } });
 				myMock.should_receive('shout').exactly('once');
-				myMock.shout()
+				myMock.shout();
+			});
+		});
+		
+		describe("idempotency of mocks on global variables", function(){
+			var SomeGlobal = { say: "hello", shout: function() { return this.say.toUpperCase(); } };
+			
+			it("when mocked in one test...", function(){
+				mock(SomeGlobal).should_receive("shout").exactly(1, "times").and_return("some string");
+				expect(SomeGlobal.shout()).to(equal, "some string");
+			});
+			
+			it("should not affect a later test", function(){
+				expect(SomeGlobal.shout()).to(equal, "HELLO");
 			});
 		});
 		
