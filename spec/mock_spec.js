@@ -151,7 +151,22 @@ Screw.Unit(function() {
 	      mockObj.foo("spam", "eggs");
 		  });
 		});
-		
+
+		describe("with exception throwing", function() {
+		  it("should throw the exception", function() {
+		    mockObj = mock();
+		    mockObj.should_receive('foo').and_throw("my exception");
+		    var thrown = false;
+		    try {
+		      mockObj.foo()
+	      }
+	      catch (e) {
+	        thrown = true;
+	      }
+		    expect(thrown).to(equal, true);
+		  });
+		});
+
 		describe("added ontop of an existing object", function() {
 			before(function() {
 				obj = { say: "hello", shout: function() { return this.say.toUpperCase(); } }
