@@ -96,7 +96,56 @@ Screw.Unit(function() {
 			});
 		});
 		
-		describe("added on top of an existing object", function() {
+		describe("with function execution", function() {
+		  it("should execute the function", function() {
+		    mockObj = mock();
+		    var was_called = false;
+		    mockObj.should_receive('foo').and_execute(function() {
+		      was_called = true;
+	      })
+	      mockObj.foo();
+	      expect(was_called).to(equal, true);
+		  });
+
+		  it("should enforce call counts", function() {
+		    mockObj = mock();
+		    var was_called = 0;
+		    mockObj.should_receive('foo').and_execute(function() {
+		      was_called += 1;
+	      }).exactly("twice");
+	      mockObj.foo();
+	      mockObj.foo();
+	      expect(was_called).to(equal, 2);
+		  });
+
+		  it("should pass arguments to the function", function() {
+		    mockObj = mock();
+		    var was_called_with = null;
+		    mockObj.should_receive('foo').and_execute(function(arg1, arg2) {
+		      was_called_with = arg1+" and "+arg2;
+	      }).exactly("once");
+	      mockObj.foo("spam", "eggs");
+	      expect(was_called_with).to(equal, "spam and eggs");
+		  });
+
+		  it("should return the return value of the function", function() {
+		    mockObj = mock();
+		    mockObj.should_receive('foo').and_execute(function(arg1, arg2) {
+		      return arg1+" and "+arg2;
+	      }).exactly("once");
+	      expect(mockObj.foo("spam", "eggs")).to(equal, "spam and eggs");
+		  });
+
+		  it("should allow expectations inside the function", function() {
+		    mockObj = mock();
+		    mockObj.should_receive('foo').and_execute(function(arg1, arg2) {
+		      expect(arg1+" and "+arg2).to(equal, "spam and eggs");
+	      }).exactly("once");
+	      mockObj.foo("spam", "eggs");
+		  });
+		});
+		
+		describe("added ontop of an existing object", function() {
 			before(function() {
 				obj = { say: "hello", shout: function() { return this.say.toUpperCase(); } }
 				mockObj = mock(obj);
