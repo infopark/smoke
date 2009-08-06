@@ -195,6 +195,16 @@ Screw.Unit(function() {
 			it("should not affect a later test", function(){
 				expect(SomeGlobal.shout()).to(equal, "HELLO");
 			});
+			it("should restore existing methods even when mocking the same object twice", function() {
+				var my_object = { say: "hello", shout: function() { return this.say.toUpperCase(); } };
+				myMock = mock(my_object);
+				myMock.should_receive('shout').exactly('once').and_return("hi");
+				myMock2 = mock(my_object);
+				myMock2.should_receive('shout').exactly('once').and_return("ola");
+				expect(myMock.shout()).to(equal,'ola');
+				Smoke.reset();
+        expect(myMock.shout()).to(equal,'HELLO');
+			});
 		});
 		
 		describe("reseting mocks", function(){
