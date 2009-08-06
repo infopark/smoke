@@ -114,6 +114,22 @@ Screw.Unit(function() {
 	      expect(was_called).to(equal, true);
 		  });
 
+		  it("should be possible to re-mock a function that was already mocked", function() {
+		    mockObj = mock();
+		    var was_called_1 = 0;
+		    var was_called_2 = 0;
+		    mockObj.should_receive('foo').and_execute(function() {
+		      was_called_1+=1;
+	      })
+		    mockObj.should_receive('foo').and_execute(function() {
+		      was_called_2+=1;
+	      })
+	      mockObj.foo();
+	      mockObj.foo();
+	      expect(was_called_1).to(equal, 0);
+	      expect(was_called_2).to(equal, 2);
+		  });
+
 		  it("should enforce call counts", function() {
 		    mockObj = mock();
 		    var was_called = 0;
