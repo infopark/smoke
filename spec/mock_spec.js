@@ -51,6 +51,12 @@ Screw.Unit(function() {
 				m.bar();
 			});
 		
+			it("should check a minimum call count when defined via must_receive shortcut", function() {
+				var m = mock()
+				m.must_receive('bar');
+				m.bar();
+			});
+
 			it("should check a maximum call count", function() {
 				var m = mock()
 				m.should_receive('bar').at_most(2,'times');
