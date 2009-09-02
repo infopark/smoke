@@ -316,6 +316,12 @@ Screw.Unit(function() {
         mockObj('a');
       });
 
+      it("should check for at least one invokation when defined via must_be_invoked shortcut", function() {
+        mockObj.must_be_invoked();
+        mockObj();
+        mockObj();
+			});
+
       it("should allow a return value to be set", function() {
         mockObj.should_be_invoked().and_return('bar');
         expect(mockObj('foo')).to(equal, 'bar');
