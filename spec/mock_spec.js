@@ -293,6 +293,15 @@ Screw.Unit(function() {
       it("should still execute the mock like the original", function() {
         expect(mockObj()).to(equal,'bar');
       });
+
+      it("should only execute the original once", function() {
+        var counter = 0;
+        mockFn = mock_function(function() {
+          counter += 1;
+        });
+        mockFn();
+        expect(counter).to(equal, 1);
+      });
       
       it("should still execute the mock like the original with arguments", function() {
         var a = function(x,y,z) { return x+y+z };
