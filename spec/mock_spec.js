@@ -13,6 +13,24 @@ Screw.Unit(function() {
 				m.bar();
 			});
 
+      it("should check a never call count", function() {
+        var m = mock()
+        m.should_not_receive('bar');
+      });
+
+      it("should fail when an expectation is called at all", function() {
+        var m = mock()
+        m.should_not_receive('bar');
+        m.bar();
+        try {
+          Smoke.checkExpectations();
+          throw("exception");
+        } catch(e) {
+          Smoke.reset();
+          expect(e).to(equal, 'expected bar() to be called exactly 0 times but it got called 1 times');
+        }
+      });
+
       it("should fail when an expectation is called too many times", function() {
         var m = mock();
         m.should_receive('bar').exactly('once');  
