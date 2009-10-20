@@ -349,6 +349,18 @@ Screw.Unit(function() {
         mockObj();
 			});
 
+      it("should guard against invokations when defined via must_not_be_invoked shortcut", function() {
+        mockObj.should_not_be_invoked();
+        mockObj();
+        try {
+          Smoke.checkExpectations();
+          throw("exception");
+        } catch(e) {
+          Smoke.reset();
+          expect(e).to(equal, 'expected anonymous_function() to be called exactly 0 times but it got called 1 times');
+        }
+			});
+
       it("should allow a return value to be set", function() {
         mockObj.should_be_invoked().and_return('bar');
         expect(mockObj('foo')).to(equal, 'bar');
