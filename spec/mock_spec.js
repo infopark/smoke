@@ -296,6 +296,16 @@ Screw.Unit(function() {
 				expect(obj.shout()).to(equal, "HELLO");
 			});
 			
+			it("should also restore a stubbed properties", function() {
+				var obj = { say: "hello" };
+				mock(obj).stub("say").and_set_to("goodbye");
+				expect(obj.say).to(equal, "goodbye");
+
+				obj._resetMocks();
+				Smoke.mocks = [];
+
+				expect(obj.say).to(equal, "hello");
+			});
 		});
 		
 		describe("anonymous functions", function() {
