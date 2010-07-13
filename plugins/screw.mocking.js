@@ -21,6 +21,6 @@ Screw.Matchers.stub = function(obj, attr) {
     }
 
     $('.it').bind('passed', function(){ checkAndResetSmoke() });
-    $('.it').bind('failed', function(){ checkAndResetSmoke() });
+    $('.it').bind('failed', function(){ Smoke.reset() });
   });
 })(jQuery);
